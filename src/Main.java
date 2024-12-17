@@ -1,51 +1,36 @@
 import db.DB;
 
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Connection conn = null;
-     PreparedStatement st = null;
+        PreparedStatement st = null;
 
-     try {
-         conn = DB.getConnection();
+        try {
+            conn = DB.getConnection();
 
-//         st = conn.prepareStatement(    //inserir um seller
-//                 "INSERT INTO seller" +
-//                         "(Name, Email, BirthDate, BaseSalary, DepartmentId)" +
-//                         "VALUES " +"(?,?,?,?,?)" ,
-//                         Statement.RETURN_GENERATED_KEYS);
-//
-//          st.setString(1,"Carl Purple");
-//          st.setString(2,"Carl@gmail.com");
-//          st.setDate(3,new java.sql.Date(sdf.parse("22/04/1985").getTime()));
-//         st.setDouble(4,3000.0);
-//         st.setInt(5,4);
+            // Query SQL 
+            st = conn.prepareStatement(
+                    "UPDATE seller SET BaseSalary = BaseSalary + ? WHERE DepartmentId = ?"
+            );
 
-         st = conn.prepareStatement("insert into department (Name) values ('D1'),('D2') ", Statement.RETURN_GENERATED_KEYS);  // inserir dois departments
-       int rowsAffected = st.executeUpdate();
+            // Configuração dos parâmetros
+            st.setDouble(1, 200.0);
+            st.setInt(2, 2);
 
-      if (rowsAffected > 0 ){
-         ResultSet rs = st.getGeneratedKeys();
-         while (rs.next()){
-             int id = rs.getInt(1);
-             System.out.println ("Done! Id = " + id);
+            // Executa a atualização
+            int rowsAffected = st.executeUpdate();
+            System.out.println("Done! Rows Affected: " + rowsAffected);
 
-         }
-      }else{
-          System.out.println ("No rows afeccted");
-      }
-
-     } catch (SQLException  e) {
-         throw new RuntimeException(e);
-     }
-     finally {
-         DB.closeStatement(st);
-         DB.CloseConnection();
-     }
-
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Fecha recursos
+            DB.CloseConnection();
+            DB.closeStatement(st);
+        }
     }
 }
