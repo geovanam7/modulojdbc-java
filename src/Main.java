@@ -1,4 +1,5 @@
 import db.DB;
+import db.DbIntegrityException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,19 +15,17 @@ public class Main {
 
             // Query SQL 
             st = conn.prepareStatement(
-                    "UPDATE seller SET BaseSalary = BaseSalary + ? WHERE DepartmentId = ?"
+                    "DELETE FROM department WHERE Id = ?"
             );
 
-            // Configuração dos parâmetros
-            st.setDouble(1, 200.0);
-            st.setInt(2, 2);
+            st.setInt(1, 9);
 
             // Executa a atualização
             int rowsAffected = st.executeUpdate();
             System.out.println("Done! Rows Affected: " + rowsAffected);
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DbIntegrityException(e.getMessage());
         } finally {
             // Fecha recursos
             DB.CloseConnection();
